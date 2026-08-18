@@ -34,9 +34,9 @@ environment variables, GitHub Actions, and agent guidance.
 ## Environment Setup
 
 Copy `.env.example` to `.env` at the repository root for local development and
-adjust values if needed. The FastAPI settings load this root `.env` even when
-commands are executed from `apps/api`. The defaults are development-only values
-and must not be reused as production secrets.
+adjust values if needed. Run backend commands from the repository root so the
+FastAPI settings read this single root `.env` file. The defaults are
+development-only values and must not be reused as production secrets.
 
 Required tools for local development:
 
@@ -88,11 +88,10 @@ ruff check apps/api
 pytest apps/api
 ```
 
-Run Alembic migrations from the backend folder:
+Run Alembic migrations:
 
 ```bash
-cd apps/api
-alembic upgrade head
+alembic -c apps/api/alembic.ini upgrade head
 ```
 
 On Windows PowerShell, if script execution blocks `npm`, use `npm.cmd` instead.
