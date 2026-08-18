@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "campus-api"
+version = "0.1.0"
+description = "FastAPI backend for Imanol Data & AI Campus"
+requires-python = ">=3.12"
+dependencies = [
+  "alembic>=1.17,<2.0",
+  "fastapi>=0.124,<1.0",
+  "pydantic-settings>=2.12,<3.0",
+  "psycopg[binary]>=3.2,<4.0",
+  "sqlalchemy>=2.0,<3.0",
+  "uvicorn[standard]>=0.38,<1.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx>=0.28,<1.0",
+  "pytest>=9.0,<10.0",
+  "ruff>=0.14,<1.0"
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
