@@ -33,9 +33,10 @@ environment variables, GitHub Actions, and agent guidance.
 
 ## Environment Setup
 
-Copy `.env.example` to `.env` for local development and adjust values if needed.
-The defaults are development-only values and must not be reused as production
-secrets.
+Copy `.env.example` to `.env` at the repository root for local development and
+adjust values if needed. The FastAPI settings load this root `.env` even when
+commands are executed from `apps/api`. The defaults are development-only values
+and must not be reused as production secrets.
 
 Required tools for local development:
 

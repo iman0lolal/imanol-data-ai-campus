@@ -19,7 +19,7 @@ services:
     build:
       context: ./apps/api
     environment:
-      DATABASE_URL: postgresql+psycopg://campus:campus_dev_password@db:5432/campus
+      DATABASE_URL: "postgresql+psycopg://${POSTGRES_USER:-campus}:${POSTGRES_PASSWORD:-campus_dev_password}@db:5432/${POSTGRES_DB:-campus}"
     ports:
       - "8000:8000"
     volumes:
@@ -31,13 +31,14 @@ services:
 
   web:
     build:
-      context: ./apps/web
+      context: .
+      dockerfile: apps/web/Dockerfile
     environment:
       NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
     ports:
       - "3000:3000"
     volumes:
-      - ./apps/web:/app
+      - ./apps/web:/app/apps/web
       - /app/node_modules
     depends_on:
       - api

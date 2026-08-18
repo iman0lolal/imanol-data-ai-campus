@@ -1,6 +1,9 @@
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+ROOT_ENV_FILE = Path(__file__).resolve().parents[4] / ".env"
 
 
 class Settings(BaseSettings):
@@ -9,7 +12,7 @@ class Settings(BaseSettings):
         "postgresql+psycopg://campus:campus_dev_password@localhost:5432/campus"
     )
 
-    model_config = SettingsConfigDict(env_file=".env", env_prefix="")
+    model_config = SettingsConfigDict(env_file=ROOT_ENV_FILE, env_prefix="")
 
 
 @lru_cache
