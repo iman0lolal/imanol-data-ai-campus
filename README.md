@@ -109,6 +109,12 @@ Useful Learning API endpoints:
 Topic responses include optional personal `notes`, and `PATCH` can update or
 clear them.
 
+Learning topic resources are scoped under a topic:
+
+- `GET /learning/topics/{id}/resources`
+- `POST /learning/topics/{id}/resources`
+- `DELETE /learning/topics/{id}/resources/{resource_id}`
+
 On Windows PowerShell, if script execution blocks `npm`, use `npm.cmd` instead.
 
 ## Tests

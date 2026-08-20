@@ -5,8 +5,10 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.learning.models import LearningTopic
+from app.learning.models import LearningResource, LearningTopic
 from app.learning.schemas import (
+    LearningResourceCreate,
+    LearningResourceRead,
     LearningStatus,
     LearningTopicCreate,
     LearningTopicRead,
@@ -87,5 +89,74 @@ def delete_topic(topic_id: int, db: DbSession) -> Response:
         )
 
     db.delete(topic)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.get(
+    "/{topic_id}/resources",
+    response_model=list[LearningResourceRead],
+)
+def list_resources(topic_id: int, db: DbSession) -> list[LearningResource]:
+    topic = db.get(LearningTopic, topic_id)
+    if topic is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Learning topic not found",
+        )
+
+    statement = (
+        select(LearningResource)
+        .where(LearningResource.topic_id == topic_id)
+        .order_by(LearningResource.created_at, LearningResource.id)
+    )
+    return list(db.scalars(statement).all())
+
+
+@router.post(
+    "/{topic_id}/resources",
+    response_model=LearningResourceRead,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_resource(
+    topic_id: int, resource: LearningResourceCreate, db: DbSession
+) -> LearningResource:
+    topic = db.get(LearningTopic, topic_id)
+    if topic is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Learning topic not found",
+        )
+
+    db_resource = LearningResource(
+        topic_id=topic_id,
+        **resource.model_dump(mode="json"),
+    )
+    db.add(db_resource)
+    db.commit()
+    db.refresh(db_resource)
+    return db_resource
+
+
+@router.delete(
+    "/{topic_id}/resources/{resource_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_resource(topic_id: int, resource_id: int, db: DbSession) -> Response:
+    topic = db.get(LearningTopic, topic_id)
+    if topic is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Learning topic not found",
+        )
+
+    resource = db.get(LearningResource, resource_id)
+    if resource is None or resource.topic_id != topic_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Learning resource not found",
+        )
+
+    db.delete(resource)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
