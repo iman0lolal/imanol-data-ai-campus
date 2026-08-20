@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
 export default function Home() {
@@ -15,6 +17,9 @@ export default function Home() {
           <span>Web: http://localhost:3000</span>
           <span>API: {apiBaseUrl}</span>
         </div>
+        <Link className="primaryLink" href="/learning">
+          Open Learning Core
+        </Link>
       </section>
     </main>
   );

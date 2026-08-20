@@ -20,6 +20,7 @@ services:
       context: ./apps/api
     environment:
       DATABASE_URL: "postgresql+psycopg://${POSTGRES_USER:-campus}:${POSTGRES_PASSWORD:-campus_dev_password}@db:5432/${POSTGRES_DB:-campus}"
+      FRONTEND_ORIGINS: ${FRONTEND_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
     ports:
       - "8000:8000"
     volumes:

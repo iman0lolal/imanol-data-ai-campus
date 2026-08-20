@@ -4,9 +4,9 @@ Imanol Data & AI Campus is a personal learning platform for Data Engineering,
 Analytics, AI/ML, GenAI, Cloud, interview preparation, certifications, notes,
 and personal projects.
 
-This repository currently contains only the foundation: a minimal Next.js web
-app, a minimal FastAPI backend, PostgreSQL for local development, Alembic for
-future database migrations, Docker Compose, CI, and documentation.
+This repository currently contains the foundation plus the first Learning Core
+vertical slice: a minimal Next.js web app, a FastAPI backend, PostgreSQL,
+Alembic migrations, Docker Compose, CI, and documentation.
 
 ## Stack
 
@@ -46,9 +46,11 @@ Required tools for local development:
 
 ## Run Locally
 
-Start the full local stack:
+Start the database, apply migrations, then start the full local stack:
 
 ```bash
+docker compose up -d db
+docker compose run --rm api alembic -c alembic.ini upgrade head
 docker compose up --build
 ```
 
@@ -57,6 +59,7 @@ Expected endpoints:
 - Web: http://localhost:3000
 - API: http://localhost:8000
 - Health: http://localhost:8000/health
+- Learning: http://localhost:3000/learning
 
 ## Useful Commands
 
@@ -93,6 +96,14 @@ Run Alembic migrations:
 ```bash
 alembic -c apps/api/alembic.ini upgrade head
 ```
+
+Useful Learning API endpoints:
+
+- `GET /learning/topics`
+- `POST /learning/topics`
+- `GET /learning/topics/{id}`
+- `PATCH /learning/topics/{id}`
+- `DELETE /learning/topics/{id}`
 
 On Windows PowerShell, if script execution blocks `npm`, use `npm.cmd` instead.
 
