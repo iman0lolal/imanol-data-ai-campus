@@ -20,6 +20,9 @@ export default function Home() {
         <Link className="primaryLink" href="/learning">
           Open Learning Core
         </Link>
+        <Link className="secondaryLink homeSecondaryLink" href="/interview">
+          Open Interview Lab
+        </Link>
       </section>
     </main>
   );
