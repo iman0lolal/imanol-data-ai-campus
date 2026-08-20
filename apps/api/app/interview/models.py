@@ -1,13 +1,23 @@
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, DateTime, Integer, String, Text, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    func,
+)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
 QUESTION_TYPES = ("coding", "conceptual", "scenario", "behavioral")
 QUESTION_DIFFICULTIES = ("easy", "medium", "hard")
 ANSWER_FORMATS = ("sql", "python", "free_text", "star")
+ATTEMPT_CONFIDENCES = ("low", "medium", "high")
+ATTEMPT_RESULTS = ("needs_work", "acceptable", "strong")
 
 
 class InterviewQuestion(Base):
@@ -42,3 +52,37 @@ class InterviewQuestion(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
+    attempts: Mapped[list["InterviewAttempt"]] = relationship(
+        back_populates="question",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+
+class InterviewAttempt(Base):
+    __tablename__ = "interview_attempts"
+    __table_args__ = (
+        CheckConstraint(
+            "confidence in ('low', 'medium', 'high')",
+            name="ck_interview_attempts_confidence",
+        ),
+        CheckConstraint(
+            "result in ('needs_work', 'acceptable', 'strong')",
+            name="ck_interview_attempts_result",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    question_id: Mapped[int] = mapped_column(
+        ForeignKey("interview_questions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    answer: Mapped[str] = mapped_column(Text, nullable=False)
+    confidence: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    result: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+    question: Mapped[InterviewQuestion] = relationship(back_populates="attempts")

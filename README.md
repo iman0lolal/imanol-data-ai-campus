@@ -121,6 +121,8 @@ Useful Interview API endpoints:
 
 - `GET /interview/questions`
 - `GET /interview/questions/{id}`
+- `POST /interview/questions/{id}/attempts`
+- `GET /interview/questions/{id}/attempts`
 
 On Windows PowerShell, if script execution blocks `npm`, use `npm.cmd` instead.
 
