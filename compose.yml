@@ -42,7 +42,7 @@ services:
       - /app/node_modules
     depends_on:
       - api
-    command: npm run dev -- --hostname 0.0.0.0
+    command: npm run web:dev -- --hostname 0.0.0.0
 
 volumes:
   postgres_data:
