@@ -60,6 +60,7 @@ Expected endpoints:
 - API: http://localhost:8000
 - Health: http://localhost:8000/health
 - Learning: http://localhost:3000/learning
+- Learning topic detail: http://localhost:3000/learning/1
 
 ## Useful Commands
 
@@ -104,6 +105,9 @@ Useful Learning API endpoints:
 - `GET /learning/topics/{id}`
 - `PATCH /learning/topics/{id}`
 - `DELETE /learning/topics/{id}`
+
+Topic responses include optional personal `notes`, and `PATCH` can update or
+clear them.
 
 On Windows PowerShell, if script execution blocks `npm`, use `npm.cmd` instead.
 

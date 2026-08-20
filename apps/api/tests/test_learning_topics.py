@@ -53,6 +53,7 @@ def test_create_topic(client: TestClient) -> None:
     data = response.json()
     assert data["id"] == 1
     assert data["title"] == "SQL fundamentals"
+    assert data["notes"] is None
     assert data["status"] == "learning"
     assert data["progress"] == 25
 
@@ -105,6 +106,47 @@ def test_update_status_and_progress(client: TestClient) -> None:
     data = response.json()
     assert data["status"] == "reviewing"
     assert data["progress"] == 75
+
+
+def test_save_read_and_clear_notes(client: TestClient) -> None:
+    created = client.post(
+        "/learning/topics",
+        json={
+            "title": "Embeddings",
+            "area": "GenAI",
+            "difficulty": "medium",
+        },
+    ).json()
+
+    saved = client.patch(
+        f"/learning/topics/{created['id']}",
+        json={"notes": "Remember to compare cosine similarity and dot product."},
+    )
+
+    assert saved.status_code == 200
+    assert saved.json()["notes"] == (
+        "Remember to compare cosine similarity and dot product."
+    )
+
+    retrieved = client.get(f"/learning/topics/{created['id']}")
+
+    assert retrieved.status_code == 200
+    assert retrieved.json()["notes"] == (
+        "Remember to compare cosine similarity and dot product."
+    )
+
+    cleared = client.patch(
+        f"/learning/topics/{created['id']}",
+        json={"notes": None},
+    )
+
+    assert cleared.status_code == 200
+    assert cleared.json()["notes"] is None
+
+    retrieved_after_clear = client.get(f"/learning/topics/{created['id']}")
+
+    assert retrieved_after_clear.status_code == 200
+    assert retrieved_after_clear.json()["notes"] is None
 
 
 def test_rejects_invalid_progress(client: TestClient) -> None:

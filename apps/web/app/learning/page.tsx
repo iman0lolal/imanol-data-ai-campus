@@ -14,6 +14,7 @@ type LearningTopic = {
   title: string;
   area: string;
   description: string | null;
+  notes: string | null;
   status: TopicStatus;
   difficulty: TopicDifficulty;
   progress: number;
@@ -146,19 +147,26 @@ export default function LearningPage() {
                 <h2>{area}</h2>
                 <div className="topicButtons">
                   {areaTopics.map((topic) => (
-                    <button
-                      className={
-                        topic.id === selectedId
-                          ? "topicButton selected"
-                          : "topicButton"
-                      }
-                      key={topic.id}
-                      onClick={() => selectTopic(topic)}
-                      type="button"
-                    >
-                      <span>{topic.title}</span>
-                      <span>{topic.progress}%</span>
-                    </button>
+                    <div className="topicActionRow" key={topic.id}>
+                      <button
+                        className={
+                          topic.id === selectedId
+                            ? "topicButton selected"
+                            : "topicButton"
+                        }
+                        onClick={() => selectTopic(topic)}
+                        type="button"
+                      >
+                        <span>{topic.title}</span>
+                        <span>{topic.progress}%</span>
+                      </button>
+                      <Link
+                        className="topicOpenLink"
+                        href={`/learning/${topic.id}`}
+                      >
+                        Open
+                      </Link>
+                    </div>
                   ))}
                 </div>
               </section>
@@ -229,6 +237,13 @@ export default function LearningPage() {
                   {isSaving ? "Saving..." : "Save"}
                 </button>
               </div>
+
+              <Link
+                className="secondaryLink detailLink"
+                href={`/learning/${selectedTopic.id}`}
+              >
+                Open topic detail
+              </Link>
             </section>
           ) : null}
         </section>
