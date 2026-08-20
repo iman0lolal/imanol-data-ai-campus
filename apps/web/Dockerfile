@@ -2,11 +2,12 @@ FROM node:24-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+COPY package.json package-lock.json ./
+COPY apps/web/package.json ./apps/web/package.json
+RUN npm ci
 
-COPY . .
+COPY apps/web ./apps/web
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]
+CMD ["npm", "run", "web:dev", "--", "--hostname", "0.0.0.0"]

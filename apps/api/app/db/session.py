@@ -1,6 +1,6 @@
 from collections.abc import Iterator
 
-from sqlalchemy import Engine, create_engine, text
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import get_settings
@@ -15,9 +15,3 @@ def get_db() -> Iterator[Session]:
         yield db
     finally:
         db.close()
-
-
-def check_database_connection() -> bool:
-    with engine.connect() as connection:
-        connection.execute(text("SELECT 1"))
-    return True
