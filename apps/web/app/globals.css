@@ -74,6 +74,201 @@ p {
   font-family:
     "Courier New",
     Courier,
-    monospace;
+  monospace;
   font-size: 0.95rem;
+}
+
+.primaryLink,
+.secondaryLink,
+.saveButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border-radius: 6px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.primaryLink {
+  margin-top: 32px;
+  padding: 0 18px;
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.secondaryLink {
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+}
+
+.learningShell {
+  min-height: 100vh;
+  padding: 36px clamp(18px, 4vw, 56px);
+}
+
+.learningHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 1180px;
+  margin: 0 auto 28px;
+}
+
+.learningHeader h1 {
+  max-width: none;
+  font-size: clamp(2rem, 5vw, 3.8rem);
+}
+
+.statusMessage {
+  max-width: 1180px;
+  margin: 0 auto 20px;
+}
+
+.statusMessage.error {
+  color: #b42318;
+}
+
+.learningLayout {
+  display: grid;
+  grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
+  gap: 24px;
+  max-width: 1180px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+.topicList,
+.topicDetail {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.topicList {
+  display: grid;
+  gap: 20px;
+  padding: 20px;
+}
+
+.areaGroup h2,
+.topicDetail h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: 0;
+}
+
+.topicButtons {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.topicButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--foreground);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.topicButton.selected {
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.topicDetail {
+  display: grid;
+  gap: 24px;
+  padding: clamp(22px, 4vw, 36px);
+}
+
+.topicDetail p {
+  margin-top: 12px;
+}
+
+.topicMeta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.topicMeta div {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.topicMeta dt {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.topicMeta dd {
+  margin: 6px 0 0;
+  font-weight: 700;
+}
+
+.editPanel {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) 120px auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.editPanel label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.editPanel select,
+.editPanel input {
+  min-height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0 10px;
+  color: var(--foreground);
+  font: inherit;
+}
+
+.saveButton {
+  border: 0;
+  padding: 0 18px;
+  background: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+}
+
+.saveButton:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+@media (max-width: 820px) {
+  .learningHeader,
+  .learningLayout,
+  .editPanel,
+  .topicMeta {
+    grid-template-columns: 1fr;
+  }
+
+  .learningHeader {
+    display: grid;
+  }
 }
