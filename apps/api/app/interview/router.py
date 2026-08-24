@@ -1,0 +1,56 @@
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.db.session import get_db
+from app.interview.models import InterviewQuestion
+from app.interview.schemas import (
+    InterviewDifficulty,
+    InterviewQuestionRead,
+    InterviewQuestionType,
+)
+
+router = APIRouter(prefix="/interview/questions", tags=["interview"])
+
+
+DbSession = Annotated[Session, Depends(get_db)]
+
+
+@router.get("", response_model=list[InterviewQuestionRead])
+def list_questions(
+    db: DbSession,
+    category: Annotated[str | None, Query(min_length=1, max_length=80)] = None,
+    topic: Annotated[str | None, Query(min_length=1, max_length=80)] = None,
+    difficulty: InterviewDifficulty | None = None,
+    question_type: InterviewQuestionType | None = None,
+) -> list[InterviewQuestion]:
+    statement = select(InterviewQuestion).order_by(
+        InterviewQuestion.category,
+        InterviewQuestion.topic,
+        InterviewQuestion.id,
+    )
+    if category is not None:
+        statement = statement.where(InterviewQuestion.category == category)
+    if topic is not None:
+        statement = statement.where(InterviewQuestion.topic == topic)
+    if difficulty is not None:
+        statement = statement.where(InterviewQuestion.difficulty == difficulty.value)
+    if question_type is not None:
+        statement = statement.where(
+            InterviewQuestion.question_type == question_type.value
+        )
+
+    return list(db.scalars(statement).all())
+
+
+@router.get("/{question_id}", response_model=InterviewQuestionRead)
+def get_question(question_id: int, db: DbSession) -> InterviewQuestion:
+    question = db.get(InterviewQuestion, question_id)
+    if question is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Interview question not found",
+        )
+    return question

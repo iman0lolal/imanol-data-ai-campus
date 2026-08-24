@@ -97,6 +97,10 @@ p {
   color: #ffffff;
 }
 
+.homeSecondaryLink {
+  margin-top: 12px;
+}
+
 .secondaryLink {
   padding: 0 14px;
   border: 1px solid var(--border);
@@ -408,6 +412,114 @@ p {
   opacity: 0.7;
 }
 
+.questionBank {
+  display: grid;
+  gap: 20px;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.filterPanel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.filterPanel label,
+.answerPanel {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.filterPanel input,
+.filterPanel select,
+.answerPanel textarea {
+  min-height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0 10px;
+  color: var(--foreground);
+  font: inherit;
+}
+
+.questionList {
+  display: grid;
+  gap: 12px;
+}
+
+.questionItem,
+.interviewDetail {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.questionItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: start;
+  padding: 18px;
+}
+
+.questionItem h2,
+.interviewDetail h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.35;
+}
+
+.questionMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.questionMeta span,
+.starHint span {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: var(--foreground);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.interviewDetail {
+  display: grid;
+  gap: 22px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: clamp(22px, 4vw, 36px);
+}
+
+.starHint {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.answerPanel textarea {
+  min-height: 240px;
+  padding: 12px;
+  resize: vertical;
+}
+
+.referencePanel {
+  display: grid;
+  gap: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+}
+
 @media (max-width: 820px) {
   .learningHeader,
   .learningLayout,
@@ -415,7 +527,10 @@ p {
   .topicMeta,
   .topicActionRow,
   .resourceItem,
-  .resourceForm {
+  .resourceForm,
+  .filterPanel,
+  .questionItem,
+  .starHint {
     grid-template-columns: 1fr;
   }
 

@@ -61,6 +61,8 @@ Expected endpoints:
 - Health: http://localhost:8000/health
 - Learning: http://localhost:3000/learning
 - Learning topic detail: http://localhost:3000/learning/1
+- Interview Lab: http://localhost:3000/interview
+- Interview question detail: http://localhost:3000/interview/1
 
 ## Useful Commands
 
@@ -114,6 +116,11 @@ Learning topic resources are scoped under a topic:
 - `GET /learning/topics/{id}/resources`
 - `POST /learning/topics/{id}/resources`
 - `DELETE /learning/topics/{id}/resources/{resource_id}`
+
+Useful Interview API endpoints:
+
+- `GET /interview/questions`
+- `GET /interview/questions/{id}`
 
 On Windows PowerShell, if script execution blocks `npm`, use `npm.cmd` instead.
 
