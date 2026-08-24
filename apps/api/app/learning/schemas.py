@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import StrEnum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, HttpUrl
 
 
 class LearningStatus(StrEnum):
@@ -15,6 +15,16 @@ class LearningDifficulty(StrEnum):
     easy = "easy"
     medium = "medium"
     hard = "hard"
+
+
+class LearningResourceType(StrEnum):
+    documentation = "documentation"
+    article = "article"
+    video = "video"
+    course = "course"
+    repository = "repository"
+    exercise = "exercise"
+    other = "other"
 
 
 class LearningTopicBase(BaseModel):
@@ -45,5 +55,24 @@ class LearningTopicRead(LearningTopicBase):
     id: int
     created_at: datetime
     updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class LearningResourceBase(BaseModel):
+    title: str = Field(min_length=1, max_length=160)
+    url: HttpUrl
+    resource_type: LearningResourceType = LearningResourceType.other
+    description: str | None = None
+
+
+class LearningResourceCreate(LearningResourceBase):
+    pass
+
+
+class LearningResourceRead(LearningResourceBase):
+    id: int
+    topic_id: int
+    created_at: datetime
 
     model_config = {"from_attributes": True}
