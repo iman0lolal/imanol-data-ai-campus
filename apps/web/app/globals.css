@@ -131,6 +131,10 @@ p {
   color: #b42318;
 }
 
+.statusMessage.success {
+  color: #0f766e;
+}
+
 .learningLayout {
   display: grid;
   grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
@@ -166,6 +170,13 @@ p {
   margin-top: 12px;
 }
 
+.topicActionRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: stretch;
+}
+
 .topicButton {
   display: flex;
   align-items: center;
@@ -183,6 +194,20 @@ p {
   text-align: left;
 }
 
+.topicOpenLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--foreground);
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .topicButton.selected {
   border-color: var(--accent);
   box-shadow: inset 3px 0 0 var(--accent);
@@ -196,6 +221,11 @@ p {
 
 .topicDetail p {
   margin-top: 12px;
+}
+
+.topicDetailPage {
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .topicMeta {
@@ -237,13 +267,31 @@ p {
 }
 
 .editPanel select,
-.editPanel input {
+.editPanel input,
+.notesPanel textarea {
   min-height: 40px;
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0 10px;
   color: var(--foreground);
   font: inherit;
+}
+
+.detailLink {
+  justify-self: start;
+}
+
+.notesPanel {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.notesPanel textarea {
+  min-height: 220px;
+  padding: 12px;
+  resize: vertical;
 }
 
 .saveButton {
@@ -264,7 +312,8 @@ p {
   .learningHeader,
   .learningLayout,
   .editPanel,
-  .topicMeta {
+  .topicMeta,
+  .topicActionRow {
     grid-template-columns: 1fr;
   }
 

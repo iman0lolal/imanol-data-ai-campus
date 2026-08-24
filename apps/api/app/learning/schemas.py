@@ -21,6 +21,7 @@ class LearningTopicBase(BaseModel):
     title: str = Field(min_length=1, max_length=120)
     area: str = Field(min_length=1, max_length=80)
     description: str | None = None
+    notes: str | None = None
     status: LearningStatus = LearningStatus.not_started
     difficulty: LearningDifficulty = LearningDifficulty.medium
     progress: int = Field(default=0, ge=0, le=100)
@@ -34,6 +35,7 @@ class LearningTopicUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=120)
     area: str | None = Field(default=None, min_length=1, max_length=80)
     description: str | None = None
+    notes: str | None = None
     status: LearningStatus | None = None
     difficulty: LearningDifficulty | None = None
     progress: int | None = Field(default=None, ge=0, le=100)

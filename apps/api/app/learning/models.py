@@ -30,6 +30,7 @@ class LearningTopic(Base):
     title: Mapped[str] = mapped_column(String(120), nullable=False)
     area: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, default="not_started", index=True
     )
