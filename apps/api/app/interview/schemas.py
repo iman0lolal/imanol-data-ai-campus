@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import StrEnum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class InterviewQuestionType(StrEnum):
@@ -24,6 +24,18 @@ class InterviewAnswerFormat(StrEnum):
     star = "star"
 
 
+class InterviewConfidence(StrEnum):
+    low = "low"
+    medium = "medium"
+    high = "high"
+
+
+class InterviewResult(StrEnum):
+    needs_work = "needs_work"
+    acceptable = "acceptable"
+    strong = "strong"
+
+
 class InterviewQuestionRead(BaseModel):
     id: int
     question: str
@@ -37,6 +49,20 @@ class InterviewQuestionRead(BaseModel):
     reference_answer: str | None
     source: str | None
     source_context: str | None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class InterviewAttemptCreate(BaseModel):
+    answer: str = Field(min_length=1)
+    confidence: InterviewConfidence | None = None
+    result: InterviewResult | None = None
+
+
+class InterviewAttemptRead(InterviewAttemptCreate):
+    id: int
+    question_id: int
     created_at: datetime
 
     model_config = {"from_attributes": True}

@@ -138,6 +138,79 @@ def test_missing_question_returns_404(client: TestClient) -> None:
     assert response.json()["detail"] == "Interview question not found"
 
 
+def test_create_attempt(client: TestClient) -> None:
+    question = client.get("/interview/questions", params={"category": "SQL"}).json()[0]
+
+    response = client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={
+            "answer": "I would group by email and use HAVING count greater than 1.",
+            "confidence": "medium",
+            "result": "acceptable",
+        },
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+    assert data["question_id"] == question["id"]
+    assert data["confidence"] == "medium"
+    assert data["result"] == "acceptable"
+
+
+def test_retrieve_attempts_persists_answers(client: TestClient) -> None:
+    question = client.get("/interview/questions", params={"category": "Python"}).json()[
+        0
+    ]
+    client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={"answer": "Use a generator with yield.", "confidence": "high"},
+    )
+
+    response = client.get(f"/interview/questions/{question['id']}/attempts")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["answer"] == "Use a generator with yield."
+    assert data[0]["confidence"] == "high"
+    assert data[0]["result"] is None
+
+
+def test_attempts_missing_question_returns_404(client: TestClient) -> None:
+    listed = client.get("/interview/questions/999/attempts")
+    created = client.post(
+        "/interview/questions/999/attempts",
+        json={"answer": "Missing parent answer"},
+    )
+
+    assert listed.status_code == 404
+    assert listed.json()["detail"] == "Interview question not found"
+    assert created.status_code == 404
+    assert created.json()["detail"] == "Interview question not found"
+
+
+def test_attempts_are_returned_newest_first(client: TestClient) -> None:
+    question = client.get("/interview/questions", params={"category": "Spark"}).json()[
+        0
+    ]
+    first = client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={"answer": "First attempt"},
+    ).json()
+    second = client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={"answer": "Second attempt", "result": "needs_work"},
+    ).json()
+
+    response = client.get(f"/interview/questions/{question['id']}/attempts")
+
+    assert response.status_code == 200
+    assert [attempt["id"] for attempt in response.json()] == [
+        second["id"],
+        first["id"],
+    ]
+
+
 def test_seed_data_count_and_content_sanity() -> None:
     migration_path = (
         Path(__file__).parents[1]
