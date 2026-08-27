@@ -358,6 +358,79 @@ def test_progress_revisit_includes_latest_low_or_needs_work(
     assert revisit_questions[0]["latest_result"] == "acceptable"
 
 
+def test_progress_revisit_returns_all_qualifying_questions(
+    client: TestClient, engine: Engine
+) -> None:
+    with Session(engine) as db:
+        questions = [
+            InterviewQuestion(
+                question=f"Runtime revisit question {index}",
+                category="Runtime",
+                topic="Regression",
+                question_type="conceptual",
+                difficulty="medium",
+                answer_format="free_text",
+                expected_concepts="latest attempt",
+                reference_answer="Use latest self-assessment.",
+            )
+            for index in range(9)
+        ]
+        db.add_all(questions)
+        db.flush()
+        question_ids = [question.id for question in questions]
+        db.commit()
+
+    for question_id in question_ids:
+        client.post(
+            f"/interview/questions/{question_id}/attempts",
+            json={
+                "answer": "Needs more practice.",
+                "confidence": "low",
+                "result": "needs_work",
+            },
+        )
+
+    response = client.get("/interview/progress")
+
+    assert response.status_code == 200
+    revisit_ids = {question["id"] for question in response.json()["revisit_questions"]}
+    assert question_ids == [
+        question["id"] for question in response.json()["revisit_questions"]
+    ]
+    assert revisit_ids == set(question_ids)
+
+
+def test_progress_revisit_includes_question_when_latest_attempt_becomes_weak(
+    client: TestClient,
+) -> None:
+    question = client.get("/interview/questions", params={"category": "SQL"}).json()[0]
+    client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={
+            "answer": "Solid first answer.",
+            "confidence": "high",
+            "result": "strong",
+        },
+    )
+    client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={
+            "answer": "Later weak answer.",
+            "confidence": "low",
+            "result": "needs_work",
+        },
+    )
+
+    response = client.get("/interview/progress")
+
+    assert response.status_code == 200
+    revisit_questions = response.json()["revisit_questions"]
+    assert len(revisit_questions) == 1
+    assert revisit_questions[0]["id"] == question["id"]
+    assert revisit_questions[0]["latest_confidence"] == "low"
+    assert revisit_questions[0]["latest_result"] == "needs_work"
+
+
 def test_filter_questions_by_attempted_state(client: TestClient) -> None:
     question = client.get("/interview/questions", params={"category": "SQL"}).json()[0]
     client.post(

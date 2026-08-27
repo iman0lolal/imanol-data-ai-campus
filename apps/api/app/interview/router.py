@@ -99,7 +99,6 @@ def get_progress(db: DbSession) -> InterviewProgressRead:
         .order_by(
             InterviewQuestion.category, InterviewQuestion.topic, InterviewQuestion.id
         )
-        .limit(8)
     ).all()
 
     return InterviewProgressRead(
