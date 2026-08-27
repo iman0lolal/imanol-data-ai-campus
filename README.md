@@ -119,6 +119,7 @@ Learning topic resources are scoped under a topic:
 
 Useful Interview API endpoints:
 
+- `GET /interview/progress`
 - `GET /interview/questions`
 - `GET /interview/questions/{id}`
 - `POST /interview/questions/{id}/attempts`

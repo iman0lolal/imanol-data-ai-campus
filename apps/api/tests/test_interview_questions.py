@@ -211,6 +211,265 @@ def test_attempts_are_returned_newest_first(client: TestClient) -> None:
     ]
 
 
+def test_progress_with_zero_attempts(client: TestClient) -> None:
+    response = client.get("/interview/progress")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["overall"] == {
+        "total_questions": 4,
+        "attempted_questions": 0,
+        "unattempted_questions": 4,
+        "coverage_percentage": 0.0,
+        "total_attempts": 0,
+    }
+    assert data["revisit_questions"] == []
+
+
+def test_progress_counts_one_attempted_question(client: TestClient) -> None:
+    question = client.get("/interview/questions", params={"category": "SQL"}).json()[0]
+    client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={"answer": "Group by email.", "confidence": "medium"},
+    )
+
+    response = client.get("/interview/progress")
+
+    assert response.status_code == 200
+    overall = response.json()["overall"]
+    assert overall["attempted_questions"] == 1
+    assert overall["unattempted_questions"] == 3
+    assert overall["coverage_percentage"] == 25.0
+
+
+def test_progress_counts_multiple_attempts_once_for_coverage(
+    client: TestClient,
+) -> None:
+    question = client.get("/interview/questions", params={"category": "Python"}).json()[
+        0
+    ]
+    client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={"answer": "First answer."},
+    )
+    client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={"answer": "Second answer.", "result": "acceptable"},
+    )
+
+    response = client.get("/interview/progress")
+
+    assert response.status_code == 200
+    overall = response.json()["overall"]
+    assert overall["attempted_questions"] == 1
+    assert overall["coverage_percentage"] == 25.0
+    assert overall["total_attempts"] == 2
+
+
+def test_progress_groups_by_category(client: TestClient) -> None:
+    sql_question = client.get(
+        "/interview/questions", params={"category": "SQL"}
+    ).json()[0]
+    spark_question = client.get(
+        "/interview/questions", params={"category": "Spark"}
+    ).json()[0]
+    client.post(
+        f"/interview/questions/{sql_question['id']}/attempts",
+        json={"answer": "SQL answer."},
+    )
+    client.post(
+        f"/interview/questions/{spark_question['id']}/attempts",
+        json={"answer": "Spark answer."},
+    )
+
+    response = client.get("/interview/progress")
+
+    categories = {item["name"]: item for item in response.json()["by_category"]}
+    assert categories["SQL"]["attempted_questions"] == 1
+    assert categories["SQL"]["coverage_percentage"] == 100.0
+    assert categories["Spark"]["attempted_questions"] == 1
+    assert categories["Behavioral"]["attempted_questions"] == 0
+
+
+def test_progress_groups_by_difficulty(client: TestClient) -> None:
+    medium_question = client.get(
+        "/interview/questions", params={"category": "Spark"}
+    ).json()[0]
+    client.post(
+        f"/interview/questions/{medium_question['id']}/attempts",
+        json={"answer": "Spark answer."},
+    )
+
+    response = client.get("/interview/progress")
+
+    difficulties = {item["name"]: item for item in response.json()["by_difficulty"]}
+    assert difficulties["medium"]["total_questions"] == 2
+    assert difficulties["medium"]["attempted_questions"] == 1
+    assert difficulties["medium"]["coverage_percentage"] == 50.0
+    assert difficulties["easy"]["attempted_questions"] == 0
+
+
+def test_progress_revisit_uses_latest_attempt(client: TestClient) -> None:
+    question = client.get("/interview/questions", params={"category": "SQL"}).json()[0]
+    client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={
+            "answer": "Needs more work.",
+            "confidence": "low",
+            "result": "needs_work",
+        },
+    )
+    client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={
+            "answer": "Improved answer.",
+            "confidence": "high",
+            "result": "strong",
+        },
+    )
+
+    response = client.get("/interview/progress")
+
+    assert response.status_code == 200
+    assert response.json()["revisit_questions"] == []
+
+
+def test_progress_revisit_includes_latest_low_or_needs_work(
+    client: TestClient,
+) -> None:
+    question = client.get("/interview/questions", params={"category": "Python"}).json()[
+        0
+    ]
+    client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={
+            "answer": "Still shaky.",
+            "confidence": "low",
+            "result": "acceptable",
+        },
+    )
+
+    response = client.get("/interview/progress")
+
+    revisit_questions = response.json()["revisit_questions"]
+    assert len(revisit_questions) == 1
+    assert revisit_questions[0]["id"] == question["id"]
+    assert revisit_questions[0]["latest_confidence"] == "low"
+    assert revisit_questions[0]["latest_result"] == "acceptable"
+
+
+def test_progress_revisit_returns_all_qualifying_questions(
+    client: TestClient, engine: Engine
+) -> None:
+    with Session(engine) as db:
+        questions = [
+            InterviewQuestion(
+                question=f"Runtime revisit question {index}",
+                category="Runtime",
+                topic="Regression",
+                question_type="conceptual",
+                difficulty="medium",
+                answer_format="free_text",
+                expected_concepts="latest attempt",
+                reference_answer="Use latest self-assessment.",
+            )
+            for index in range(9)
+        ]
+        db.add_all(questions)
+        db.flush()
+        question_ids = [question.id for question in questions]
+        db.commit()
+
+    for question_id in question_ids:
+        client.post(
+            f"/interview/questions/{question_id}/attempts",
+            json={
+                "answer": "Needs more practice.",
+                "confidence": "low",
+                "result": "needs_work",
+            },
+        )
+
+    response = client.get("/interview/progress")
+
+    assert response.status_code == 200
+    revisit_ids = {question["id"] for question in response.json()["revisit_questions"]}
+    assert question_ids == [
+        question["id"] for question in response.json()["revisit_questions"]
+    ]
+    assert revisit_ids == set(question_ids)
+
+
+def test_progress_revisit_includes_question_when_latest_attempt_becomes_weak(
+    client: TestClient,
+) -> None:
+    question = client.get("/interview/questions", params={"category": "SQL"}).json()[0]
+    client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={
+            "answer": "Solid first answer.",
+            "confidence": "high",
+            "result": "strong",
+        },
+    )
+    client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={
+            "answer": "Later weak answer.",
+            "confidence": "low",
+            "result": "needs_work",
+        },
+    )
+
+    response = client.get("/interview/progress")
+
+    assert response.status_code == 200
+    revisit_questions = response.json()["revisit_questions"]
+    assert len(revisit_questions) == 1
+    assert revisit_questions[0]["id"] == question["id"]
+    assert revisit_questions[0]["latest_confidence"] == "low"
+    assert revisit_questions[0]["latest_result"] == "needs_work"
+
+
+def test_filter_questions_by_attempted_state(client: TestClient) -> None:
+    question = client.get("/interview/questions", params={"category": "SQL"}).json()[0]
+    client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={"answer": "SQL answer."},
+    )
+
+    attempted = client.get("/interview/questions", params={"attempted": "true"})
+    unattempted = client.get("/interview/questions", params={"attempted": "false"})
+
+    assert attempted.status_code == 200
+    assert [item["id"] for item in attempted.json()] == [question["id"]]
+    assert unattempted.status_code == 200
+    assert question["id"] not in {item["id"] for item in unattempted.json()}
+    assert len(unattempted.json()) == 3
+
+
+def test_filter_questions_by_latest_self_assessment(client: TestClient) -> None:
+    question = client.get("/interview/questions", params={"category": "Spark"}).json()[
+        0
+    ]
+    client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={"answer": "First answer.", "confidence": "low", "result": "needs_work"},
+    )
+    client.post(
+        f"/interview/questions/{question['id']}/attempts",
+        json={"answer": "Second answer.", "confidence": "high", "result": "strong"},
+    )
+
+    low_confidence = client.get("/interview/questions", params={"confidence": "low"})
+    strong_result = client.get("/interview/questions", params={"result": "strong"})
+
+    assert low_confidence.status_code == 200
+    assert low_confidence.json() == []
+    assert strong_result.status_code == 200
+    assert [item["id"] for item in strong_result.json()] == [question["id"]]
+
+
 def test_seed_data_count_and_content_sanity() -> None:
     migration_path = (
         Path(__file__).parents[1]

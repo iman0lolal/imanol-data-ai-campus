@@ -419,9 +419,125 @@ p {
   margin: 0 auto;
 }
 
+.progressOverview {
+  display: grid;
+  gap: 18px;
+  max-width: 1180px;
+  margin: 0 auto 24px;
+}
+
+.progressSummary,
+.breakdownPanel,
+.revisitPanel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.progressSummary {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr);
+  gap: 20px;
+  padding: 20px;
+}
+
+.progressSummary h2,
+.breakdownPanel h2,
+.revisitPanel h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+.progressBar {
+  width: 100%;
+  height: 10px;
+  margin-top: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e6ecef;
+}
+
+.progressBar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+}
+
+.summaryStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.summaryStats div {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.summaryStats dt {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.summaryStats dd {
+  margin: 6px 0 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.progressBreakdowns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.breakdownPanel,
+.revisitPanel {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.breakdownList,
+.revisitList {
+  display: grid;
+  gap: 12px;
+}
+
+.breakdownItem > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+}
+
+.breakdownItem strong {
+  color: var(--foreground);
+}
+
+.revisitItem {
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.revisitItem span,
+.revisitItem small {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
 .filterPanel {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
   padding: 16px;
   border: 1px solid var(--border);
@@ -575,6 +691,9 @@ p {
   .topicActionRow,
   .resourceItem,
   .resourceForm,
+  .progressSummary,
+  .summaryStats,
+  .progressBreakdowns,
   .filterPanel,
   .questionItem,
   .starHint,

@@ -54,6 +54,39 @@ class InterviewQuestionRead(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class InterviewProgressOverall(BaseModel):
+    total_questions: int
+    attempted_questions: int
+    unattempted_questions: int
+    coverage_percentage: float
+    total_attempts: int
+
+
+class InterviewProgressBreakdownItem(BaseModel):
+    name: str
+    total_questions: int
+    attempted_questions: int
+    coverage_percentage: float
+
+
+class InterviewRevisitQuestion(BaseModel):
+    id: int
+    question: str
+    category: str
+    topic: str
+    difficulty: InterviewDifficulty
+    latest_confidence: InterviewConfidence | None
+    latest_result: InterviewResult | None
+    latest_attempted_at: datetime
+
+
+class InterviewProgressRead(BaseModel):
+    overall: InterviewProgressOverall
+    by_category: list[InterviewProgressBreakdownItem]
+    by_difficulty: list[InterviewProgressBreakdownItem]
+    revisit_questions: list[InterviewRevisitQuestion]
+
+
 class InterviewAttemptCreate(BaseModel):
     answer: str = Field(min_length=1)
     confidence: InterviewConfidence | None = None
